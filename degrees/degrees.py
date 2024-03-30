@@ -91,21 +91,17 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
-    # Create a queue frontier to store the nodes to explore
+    # init
     frontier = QueueFrontier()
-
-    # Create a set to keep track of visited nodes
-    visited = set()
-
-    # Initialize the frontier with the source node
+    explored = set()
     frontier.add(Node(source, None, None))
 
-    # Keep exploring nodes until the frontier is empty
+    # go through nodes
     while not frontier.empty():
-        # Get the next node from the frontier
+        # select node
         node = frontier.remove()
 
-        # Check if the node is the target
+        # check against target
         if node.state == target:
             # Build the path from the target node to the source node
             path = []
@@ -114,19 +110,19 @@ def shortest_path(source, target):
                 node = node.parent
             path.reverse()
             return path
+        
+        # If not, target, mark the node as explored
+        explored.add(node.state)
 
-        # Mark the node as visited
-        visited.add(node.state)
+        # Get the related nodes of the current node
+        related_nodes = related_nodes_for_person(node.state)
 
-        # Get the neighbors of the current node
-        neighbors = neighbors_for_person(node.state)
-
-        # Add the unvisited neighbors to the frontier
-        for movie_id, person_id in neighbors:
-            if person_id not in visited:
+        # Add the unexplored related nodes to the frontier
+        for movie_id, person_id in related_nodes:
+            if person_id not in explored:
                 frontier.add(Node(person_id, node, movie_id))
 
-    # If no path is found, return None
+    # If nothing found
     return None
 
 def person_id_for_name(name):
@@ -155,17 +151,17 @@ def person_id_for_name(name):
         return person_ids[0]
 
 
-def neighbors_for_person(person_id):
+def related_nodes_for_person(person_id):
     """
     Returns (movie_id, person_id) pairs for people
     who starred with a given person.
     """
     movie_ids = people[person_id]["movies"]
-    neighbors = set()
+    related_nodes = set()
     for movie_id in movie_ids:
         for person_id in movies[movie_id]["stars"]:
-            neighbors.add((movie_id, person_id))
-    return neighbors
+            related_nodes.add((movie_id, person_id))
+    return related_nodes
 
 
 if __name__ == "__main__":
