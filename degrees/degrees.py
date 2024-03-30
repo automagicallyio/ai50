@@ -91,10 +91,43 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
+    # Create a queue frontier to store the nodes to explore
+    frontier = QueueFrontier()
 
-    # TODO
-    raise NotImplementedError
+    # Create a set to keep track of visited nodes
+    visited = set()
 
+    # Initialize the frontier with the source node
+    frontier.add(Node(source, None, None))
+
+    # Keep exploring nodes until the frontier is empty
+    while not frontier.empty():
+        # Get the next node from the frontier
+        node = frontier.remove()
+
+        # Check if the node is the target
+        if node.state == target:
+            # Build the path from the target node to the source node
+            path = []
+            while node.parent is not None:
+                path.append((node.action, node.state))
+                node = node.parent
+            path.reverse()
+            return path
+
+        # Mark the node as visited
+        visited.add(node.state)
+
+        # Get the neighbors of the current node
+        neighbors = neighbors_for_person(node.state)
+
+        # Add the unvisited neighbors to the frontier
+        for movie_id, person_id in neighbors:
+            if person_id not in visited:
+                frontier.add(Node(person_id, node, movie_id))
+
+    # If no path is found, return None
+    return None
 
 def person_id_for_name(name):
     """
@@ -137,4 +170,3 @@ def neighbors_for_person(person_id):
 
 if __name__ == "__main__":
     main()
-
